@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-DeviceEmulator-21da0fac-23e8-4b93-94ba-338fd7b187a4</UserSecretsId>
@@ -17,3 +17,4 @@
     </None>
   </ItemGroup>
 </Project>
+

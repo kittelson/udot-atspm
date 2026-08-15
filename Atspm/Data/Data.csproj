@@ -5,7 +5,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<RootNamespace>Utah.Udot.Atspm.Data</RootNamespace>
@@ -39,24 +39,24 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.11" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.11" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.11">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.11" />
 		<PackageReference Include="NetTopologySuite" Version="2.6.0" />
-	  	<PackageReference Include="NetTopologySuite.IO.SpatiaLite" Version="2.0.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="Npgsql" Version="8.0.6" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+		<PackageReference Include="NetTopologySuite.IO.SpatiaLite" Version="2.0.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+		<PackageReference Include="Npgsql" Version="10.0.3" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
 		<PackageReference Include="Utah.Udot.NetStandardToolkit" Version="1.6.0" />
 	</ItemGroup>
 

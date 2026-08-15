@@ -5,7 +5,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>9ecfa1d3-dbf7-4a5f-b869-9fa1b62d3de7</UserSecretsId>
@@ -18,7 +18,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="AutoFixture" Version="4.18.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -48,3 +48,4 @@
 	</ItemGroup>
 
 </Project>
+
