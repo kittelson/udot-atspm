@@ -71,12 +71,13 @@ builder.Host
             o.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status406NotAcceptable));
             o.Filters.Add(new ProducesAttribute("application/json"));
         });
+        s.AddApiVersionRouteConstraint();
         s.AddProblemDetails();
         s.AddConfiguredCompression(new[] { "application/json", "application/xml", "text/csv", "application/x-ndjson" });
-        s.AddConfiguredSwagger(builder.Configuration, o =>
+        s.AddAtspmSwaggerV10(builder.Configuration, o =>
         {
-            o.IncludeXmlComments(typeof(Program).Assembly);
-            o.CustomOperationIds((controller, verb, action) => $"{verb}{controller}{action}");
+            o.IncludeAtspmXmlComments(typeof(Program).Assembly);
+            o.SetAtspmCustomOperationIds((controller, verb, action) => $"{verb}{controller}{action}");
             o.CustomSchemaIds(type => type.Name);
             o.EnableAnnotations();
             o.AddAtspmSecurityDefinitions();
@@ -263,7 +264,7 @@ app.UseMiddleware<UsageLoggingMiddleware>(
     (HttpContext ctx) => ctx.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? ctx.User?.Identity?.Name);
 
 //Swagger
-app.UseConfiguredSwaggerUI();
+app.UseAtspmSwaggerUIV10(builder.Configuration);
 
 //Endpoints
 app.MapControllers();

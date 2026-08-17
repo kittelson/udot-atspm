@@ -15,7 +15,7 @@
 // limitations under the License.
 #endregion
 
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Utah.Udot.Atspm.DataApi.CustomOperations
@@ -50,7 +50,7 @@ namespace Utah.Udot.Atspm.DataApi.CustomOperations
                 In = ParameterLocation.Header,
                 Required = false,
                 Description = "Change CSV timestamp format. See: https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings",
-                Schema = new OpenApiSchema { Type = "string" }
+                Schema = new OpenApiSchema { Type = JsonSchemaType.String }
             });
         }
     }

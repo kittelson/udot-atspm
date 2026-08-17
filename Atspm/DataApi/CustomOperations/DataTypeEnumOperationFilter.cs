@@ -15,9 +15,9 @@
 // limitations under the License.
 #endregion
 
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Text.Json.Nodes;
 using Utah.Udot.ATSPM.DataApi.Controllers;
 
 namespace Utah.Udot.Atspm.DataApi.CustomOperations
@@ -78,10 +78,11 @@ namespace Utah.Udot.Atspm.DataApi.CustomOperations
                     List<string> derivedTypes = t2.ListDerivedTypes().ToList();
 
                     // now you can assign to parameter.Schema.Enum
-                    parameter.Schema.Enum = derivedTypes
-                        .Select(name => new OpenApiString(name))
-                        .Cast<IOpenApiAny>()
-                        .ToList();
+                    parameter.Schema.Enum.Clear();
+                    foreach (var name in derivedTypes)
+                    {
+                        parameter.Schema.Enum.Add(JsonValue.Create(name)!);
+                    }
                 }
             }
         }

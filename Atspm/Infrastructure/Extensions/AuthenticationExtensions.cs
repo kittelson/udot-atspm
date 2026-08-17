@@ -29,7 +29,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Security.Claims;
@@ -232,6 +232,8 @@ namespace Utah.Udot.Atspm.Infrastructure.Extensions
         /// </remarks>
         public static SwaggerGenOptions AddAtspmSecurityDefinitions(this SwaggerGenOptions swaggerGenOptions)
         {
+            const string apiKeySchemeName = "ApiKey";
+
             var jwtSecurityScheme = new OpenApiSecurityScheme
             {
                 BearerFormat = "JWT",
@@ -239,12 +241,7 @@ namespace Utah.Udot.Atspm.Infrastructure.Extensions
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
                 Scheme = JwtBearerDefaults.AuthenticationScheme,
-                Description = "Put **_ONLY_** your JWT Bearer token on textbox below!",
-                Reference = new OpenApiReference
-                {
-                    Id = JwtBearerDefaults.AuthenticationScheme,
-                    Type = ReferenceType.SecurityScheme
-                }
+                Description = "Put **_ONLY_** your JWT Bearer token on textbox below!"
             };
 
             var apiKeySecurityScheme = new OpenApiSecurityScheme
@@ -253,21 +250,16 @@ namespace Utah.Udot.Atspm.Infrastructure.Extensions
                 Description = "Enter your API Key directly (no 'Bearer' prefix needed)",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.ApiKey,
-                Scheme = "ApiKey",
-                Reference = new OpenApiReference
-                {
-                    Id = "ApiKey",
-                    Type = ReferenceType.SecurityScheme
-                }
+                Scheme = apiKeySchemeName
             };
 
-            swaggerGenOptions.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
-            swaggerGenOptions.AddSecurityDefinition(apiKeySecurityScheme.Reference.Id, apiKeySecurityScheme);
+            swaggerGenOptions.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, jwtSecurityScheme);
+            swaggerGenOptions.AddSecurityDefinition(apiKeySchemeName, apiKeySecurityScheme);
 
-            swaggerGenOptions.AddSecurityRequirement(new OpenApiSecurityRequirement
+            swaggerGenOptions.AddSecurityRequirement(document => new OpenApiSecurityRequirement
             {
-                { jwtSecurityScheme, Array.Empty<string>() },
-                { apiKeySecurityScheme, Array.Empty<string>() }
+                { new OpenApiSecuritySchemeReference(JwtBearerDefaults.AuthenticationScheme, document, null), new List<string>() },
+                { new OpenApiSecuritySchemeReference(apiKeySchemeName, document, null), new List<string>() }
             });
 
             return swaggerGenOptions;

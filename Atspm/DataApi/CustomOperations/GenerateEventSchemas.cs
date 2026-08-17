@@ -15,7 +15,7 @@
 // limitations under the License.
 #endregion
 
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Utah.Udot.Atspm.DataApi.CustomOperations

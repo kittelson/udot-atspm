@@ -15,12 +15,15 @@
 // limitations under the License.
 #endregion
 
+using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.OData;
+using Microsoft.AspNetCore.Routing;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Utah.Udot.Atspm.ConfigApi.Configuration;
 using Utah.Udot.Atspm.ConfigApi.Services;
 using Utah.Udot.Atspm.Data;
 using Utah.Udot.Atspm.Infrastructure.Extensions;
@@ -66,20 +69,29 @@ builder.Host
         });
         s.AddProblemDetails();
         s.AddConfiguredCompression(new[] { "application/json", "application/xml", "text/csv", "application/x-ndjson" });
-        s.AddConfiguredSwagger(builder.Configuration, o =>
+        s.AddApiVersionRouteConstraint();
+        s.AddApiVersioning(v =>
         {
-            o.IncludeXmlComments(typeof(Program).Assembly);
-            o.CustomOperationIds((controller, verb, action) => $"{verb}{controller}{action}");
-            o.EnableAnnotations();
-            o.AddAtspmSecurityDefinitions();
-            o.DocumentFilter<GenerateMeasureOptionSchemas>();
-        }, v =>
-        v.AddOData(o => o.AddRouteComponents("api/v{version:apiVersion}"))
+            v.DefaultApiVersion = new Asp.Versioning.ApiVersion(1, 0);
+            v.AssumeDefaultVersionWhenUnspecified = true;
+            v.ReportApiVersions = true;
+        })
+        .AddOData(o => o.AddRouteComponents("api/v{version:apiVersion}"))
         .AddODataApiExplorer(o =>
         {
             o.GroupNameFormat = "'v'VVV";
             o.SubstituteApiVersionInUrl = true;
-        }));
+        });
+        s.AddEndpointsApiExplorer();
+        s.AddSwaggerGen(o =>
+        {
+            o.IncludeAtspmXmlComments(typeof(Program).Assembly);
+            o.SetAtspmCustomOperationIds((controller, verb, action) => $"{verb}{controller}{action}");
+            o.EnableAnnotations();
+            o.AddAtspmSecurityDefinitions();
+            o.DocumentFilter<GenerateMeasureOptionSchemas>();
+        });
+        s.ConfigureOptions<ConfigureSwaggerOptions>();
         s.AddConfiguredCors(builder.Configuration);
         s.AddHttpLogging(l =>
         {
@@ -137,7 +149,14 @@ app.UseResponseCompression();
 app.UseHttpLogging();
 
 //Swagger
-app.UseConfiguredSwaggerUI();
+var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+app.UseAtspmSwaggerUIV10(builder.Configuration, options =>
+{
+    foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
+    {
+        options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+    }
+});
 
 //Endpoints
 app.UseVersionedODataBatching();
