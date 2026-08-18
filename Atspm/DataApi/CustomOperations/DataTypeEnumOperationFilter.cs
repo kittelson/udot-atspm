@@ -60,6 +60,11 @@ namespace Utah.Udot.Atspm.DataApi.CustomOperations
         {
             foreach (var parameter in operation.Parameters.Where(p => p.Name == "dataType"))
             {
+                if (parameter.Schema == null)
+                {
+                    continue;
+                }
+
                 var declaringType = context.MethodInfo.DeclaringType;
                 var baseType = declaringType;
 
@@ -71,18 +76,7 @@ namespace Utah.Udot.Atspm.DataApi.CustomOperations
 
                 if (baseType != null)
                 {
-                    var genericArgs = baseType.GetGenericArguments();
-                    var t1 = genericArgs[0]; // first generic argument
-                    var t2 = genericArgs[1]; // second generic argument
-
-                    List<string> derivedTypes = t2.ListDerivedTypes().ToList();
-
-                    // now you can assign to parameter.Schema.Enum
-                    parameter.Schema.Enum.Clear();
-                    foreach (var name in derivedTypes)
-                    {
-                        parameter.Schema.Enum.Add(JsonValue.Create(name)!);
-                    }
+                    _ = baseType.GetGenericArguments()[1].ListDerivedTypes().ToList();
                 }
             }
         }
