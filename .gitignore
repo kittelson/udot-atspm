@@ -72,7 +72,8 @@ dkms.conf
 *.g.cs
 *.g.i.cs
 *.generated.cs
-
+# EF Core migration Designer files must be committed - they are not regenerated at build time
+!**/Migrations/**/*.Designer.cs
 # Local configuration files
 .claude/
 **/Properties/launchSettings.json
