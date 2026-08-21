@@ -71,7 +71,7 @@ namespace Utah.Udot.Atspm.Infrastructure.Extensions
                 DatabaseProvider.PostgreSql => builder.UseNpgsql(connectionString,
                     o => o.MigrationsAssembly(PostgreSqlProvider.Migration)),
 
-                DatabaseProvider.MySql => builder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
+                DatabaseProvider.MySql => builder.UseMySQL(connectionString,
                     o => o.MigrationsAssembly(MySqlProvider.Migration)),
 
                 DatabaseProvider.Oracle => builder.UseOracle(connectionString,

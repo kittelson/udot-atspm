@@ -17,7 +17,7 @@
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
-using MySqlConnector;
+using MySql.Data.MySqlClient;
 using Npgsql;
 using Oracle.ManagedDataAccess.Client;
 using System.ComponentModel.DataAnnotations;

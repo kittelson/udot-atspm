@@ -59,7 +59,7 @@ namespace Utah.Udot.Atspm.Data.Utility
                 "Npgsql.EntityFrameworkCore.PostgreSQL" => "timestamp",
                 "Microsoft.EntityFrameworkCore.SqlServer" => "datetime2",
                 "Oracle.EntityFrameworkCore" => "TIMESTAMP",
-                "Pomelo.EntityFrameworkCore.MySql" => "datetime",
+                "MySql.EntityFrameworkCore" => "datetime",
                 _ => null
             };
 

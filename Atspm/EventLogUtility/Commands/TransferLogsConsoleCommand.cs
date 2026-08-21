@@ -208,7 +208,7 @@ namespace Utah.Udot.ATSPM.EventLogUtility.Commands
 
                 case MySqlProvider.ProviderName:
                     {
-                        return builder.UseMySql(ServerVersion.AutoDetect(config.ConnectionString), opt => opt.MigrationsAssembly(SqliteProvider.Migration));
+                        return builder.UseMySQL(config.ConnectionString, opt => opt.MigrationsAssembly(MySqlProvider.Migration));
                     }
 
                 case OracleProvider.ProviderName:

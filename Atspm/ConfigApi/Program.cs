@@ -63,7 +63,6 @@ builder.Host
             o.Count().Select().OrderBy().Expand().Filter().SetMaxTop(null);
             o.RouteOptions.EnableKeyInParenthesis = false;
             o.RouteOptions.EnableNonParenthesisForEmptyParameterFunction = true;
-            o.RouteOptions.EnablePropertyNameCaseInsensitive = true;
             o.RouteOptions.EnableQualifiedOperationCall = false;
             o.RouteOptions.EnableUnqualifiedOperationCall = true;
         });
