@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.OData.UriParser;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Utah.Udot.Atspm.ConfigApi.Configuration;
@@ -61,6 +62,7 @@ builder.Host
         .AddOData(o =>
         {
             o.Count().Select().OrderBy().Expand().Filter().SetMaxTop(null);
+            o.EnableNoDollarQueryOptions = true;
             o.RouteOptions.EnableKeyInParenthesis = false;
             o.RouteOptions.EnableNonParenthesisForEmptyParameterFunction = true;
             o.RouteOptions.EnableQualifiedOperationCall = false;
@@ -75,7 +77,13 @@ builder.Host
             v.AssumeDefaultVersionWhenUnspecified = true;
             v.ReportApiVersions = true;
         })
-        .AddOData(o => o.AddRouteComponents("api/v{version:apiVersion}"))
+        .AddOData(o => o.AddRouteComponents("api/v{version:apiVersion}", services =>
+        {
+            services.AddSingleton<ODataUriResolver>(_ => new UnqualifiedODataUriResolver
+            {
+                EnableCaseInsensitive = true
+            });
+        }))
         .AddODataApiExplorer(o =>
         {
             o.GroupNameFormat = "'v'VVV";

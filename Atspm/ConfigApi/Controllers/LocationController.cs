@@ -264,7 +264,7 @@ namespace Utah.Udot.Atspm.ConfigApi.Controllers
         /// <param name="metricTypeId">Locations by chart type</param>
         /// <returns></returns>
         [HttpGet]
-        [EnableQuery(AllowedQueryOptions = Count | Filter | Select | OrderBy | Top | Skip)]
+        [EnableQuery(AllowedQueryOptions = Count | Expand | Filter | Select | OrderBy | Top | Skip)]
         [ProducesResponseType(typeof(IEnumerable<SearchLocation>), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         public IActionResult GetLocationsForSearch([FromQuery] int? areaId, [FromQuery] int? regionId, [FromQuery] int? jurisdictionId, [FromQuery] int? metricTypeId)
@@ -285,6 +285,8 @@ namespace Utah.Udot.Atspm.ConfigApi.Controllers
                     SecondaryName = s.SecondaryName,
                     RegionId = s.RegionId,
                     JurisdictionId = s.JurisdictionId,
+                    region = s.Region,
+                    jurisdiction = s.Jurisdiction,
                     Longitude = s.Longitude,
                     Latitude = s.Latitude,
                     ChartEnabled = s.ChartEnabled,

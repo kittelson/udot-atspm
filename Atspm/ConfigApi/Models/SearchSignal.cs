@@ -15,6 +15,8 @@
 // limitations under the License.
 #endregion
 
+using Utah.Udot.Atspm.Data.Models;
+
 namespace Utah.Udot.Atspm.ConfigApi.Models
 {
     public class SearchLocation
@@ -28,6 +30,8 @@ namespace Utah.Udot.Atspm.ConfigApi.Models
         public bool ChartEnabled { get; set; }
         public int? RegionId { get; set; }
         public int? JurisdictionId { get; set; }
+        public Region region { get; set; }
+        public Jurisdiction jurisdiction { get; set; }
         public IEnumerable<int> Areas { get; set; }
         public IEnumerable<int> Charts { get; set; }
         public DateTime Start { get; set; }
