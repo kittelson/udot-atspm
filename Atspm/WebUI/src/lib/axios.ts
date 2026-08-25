@@ -95,8 +95,59 @@ function authRequestInterceptor(config: InternalAxiosRequestConfig) {
   return config
 }
 
+const oDataSystemQueryOptions = new Set([
+  'select',
+  'expand',
+  'filter',
+  'orderby',
+  'top',
+  'skip',
+  'count',
+  'search',
+  'compute',
+  'apply',
+  'levels',
+])
+
+function normalizeODataQueryParams(params: AxiosRequestConfig['params']) {
+  if (!params || typeof params !== 'object' || Array.isArray(params)) {
+    return params
+  }
+
+  if (params instanceof URLSearchParams) {
+    return params
+  }
+
+  const normalizedParams = {
+    ...(params as Record<string, unknown>),
+  }
+
+  for (const [key, value] of Object.entries(params as Record<string, unknown>)) {
+    if (key.startsWith('$')) {
+      continue
+    }
+
+    const lowerKey = key.toLowerCase()
+    if (!oDataSystemQueryOptions.has(lowerKey)) {
+      continue
+    }
+
+    const dollarKey = `$${lowerKey}`
+    if (!(dollarKey in normalizedParams)) {
+      normalizedParams[dollarKey] = value
+    }
+
+    delete normalizedParams[key]
+  }
+
+  return normalizedParams
+}
+
 export const configRequest = <T>(config: AxiosRequestConfig): Promise<T> => {
-  return configAxios.request<unknown, T>(config)
+  return configAxios.request<unknown, T>({
+    ...config,
+    params: normalizeODataQueryParams(config.params),
+  })
 }
 
 export const reportsRequest = <T>(config: AxiosRequestConfig): Promise<T> => {

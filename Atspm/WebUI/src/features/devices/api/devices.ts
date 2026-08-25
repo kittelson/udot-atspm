@@ -36,7 +36,7 @@ export function useGetDevices() {
 
 export function useGetDevicesForLocation(locationId: string) {
   return useGetRequest<ApiResponse<Device>>({
-    route: `/Location/${locationId}/Devices?expand=DeviceConfiguration`,
+    route: `/Location/${locationId}/Devices?$expand=DeviceConfiguration`,
   })
 }
 

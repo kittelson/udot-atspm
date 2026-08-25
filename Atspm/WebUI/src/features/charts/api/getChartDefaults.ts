@@ -43,7 +43,7 @@ export const getChartDefaults = async (): Promise<
   ApiResponse<ChartDefaults>
 > => {
   const response = await configAxios.get<ApiResponse<ChartDefaults[]>>(
-    '/MeasureType?expand=measureOptions'
+    '/MeasureType?$expand=measureOptions'
   )
 
   const enhancedData = response.value.map((chart: ChartDefaults) => ({

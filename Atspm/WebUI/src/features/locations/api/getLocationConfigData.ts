@@ -23,7 +23,7 @@ export const fetchLocationConfiguration = async (
   locationId: string | null
 ): Promise<Location[]> => {
   const response = await configAxios.get(
-    `Location/${locationId}?expand=approaches($expand=directionType, detectors($expand=detectionTypes, detectorComments))`
+    `Location/${locationId}?$expand=approaches($expand=directionType, detectors($expand=detectionTypes, detectorComments))`
   )
 
   return response.value

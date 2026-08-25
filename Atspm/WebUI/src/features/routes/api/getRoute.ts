@@ -28,7 +28,7 @@ export const getRoute = async (
   if (!id) {
     throw new Error('Route ID is required')
   }
-  return await configAxios.get(`/Route/${id}?expand=routeLocations`)
+  return await configAxios.get(`/Route/${id}?$expand=routeLocations`)
 }
 
 type QueryFnType = typeof getRoute

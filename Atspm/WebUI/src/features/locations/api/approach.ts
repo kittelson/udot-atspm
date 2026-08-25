@@ -31,7 +31,7 @@ const headers: AxiosHeaders = new AxiosHeaders({
 
 export function useGetApproach(id: number) {
   return useGetRequest<ApiResponse<Approach>>({
-    route: `/Approach/${id}/?expand=detectors($expand=DetectionTypes, detectorComments)`,
+    route: `/Approach/${id}/?$expand=detectors($expand=DetectionTypes, detectorComments)`,
     headers,
     axiosInstance: configAxios,
   })
