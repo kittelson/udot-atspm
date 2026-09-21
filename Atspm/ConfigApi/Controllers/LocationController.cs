@@ -52,6 +52,7 @@ namespace Utah.Udot.Atspm.ConfigApi.Controllers
         /// <param name="key"></param>
         /// <returns></returns>
         //[Authorize(Policy = "CanViewLocationConfigurations")]
+        [HttpGet("/api/v{version:apiVersion}/Location/{key}/Approaches")]
         [EnableQuery(AllowedQueryOptions = Count | Expand | Filter | Select | OrderBy | Top | Skip)]
         [ProducesResponseType(Status200OK)]
         [ProducesResponseType(Status404NotFound)]
@@ -67,6 +68,7 @@ namespace Utah.Udot.Atspm.ConfigApi.Controllers
         /// <param name="key"></param>
         /// <returns></returns>
         //[Authorize(Policy = "CanViewLocationConfigurations")]
+        [HttpGet("/api/v{version:apiVersion}/Location/{key}/Areas")]
         [EnableQuery(AllowedQueryOptions = Count | Expand | Filter | Select | OrderBy | Top | Skip)]
         [ProducesResponseType(Status200OK)]
         [ProducesResponseType(Status404NotFound)]
@@ -82,6 +84,7 @@ namespace Utah.Udot.Atspm.ConfigApi.Controllers
         /// <param name="key"></param>
         /// <returns></returns>
         //[Authorize(Policy = "CanViewLocationConfigurations")]
+        [HttpGet("/api/v{version:apiVersion}/Location/{key}/Devices")]
         [EnableQuery(AllowedQueryOptions = Count | Expand | Filter | Select | OrderBy | Top | Skip)]
         [ProducesResponseType(Status200OK)]
         [ProducesResponseType(Status404NotFound)]
