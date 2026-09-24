@@ -22,5 +22,8 @@ namespace Utah.Udot.Atspm.Repositories.EventLogRepositories
     /// <summary>
     /// Indiana event log repository
     /// </summary>
-    public interface IIndianaEventLogRepository : IEventLogRepository<IndianaEvent> { }
+    public interface IIndianaEventLogRepository : IEventLogRepository<IndianaEvent>
+    {
+        Task<Dictionary<string, DateTime>> GetLatestHourByLocations(IEnumerable<string> locationIdentifiers, CancellationToken cancellationToken = default);
+    }
 }

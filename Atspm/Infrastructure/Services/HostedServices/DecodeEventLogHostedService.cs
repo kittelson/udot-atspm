@@ -20,19 +20,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
+using System.Globalization;
 using System.Threading.Tasks.Dataflow;
 using Utah.Udot.ATSPM.Infrastructure.Workflows;
+using Utah.Udot.Atspm.Repositories.EventLogRepositories;
 
 namespace Utah.Udot.Atspm.Infrastructure.Services.HostedServices
 {
     public class DecodeEventLogHostedService(ILogger<DecodeEventLogHostedService> log, IServiceScopeFactory serviceProvider, IOptions<DecodeEventsConfiguration> options) : HostedServiceBase(log, serviceProvider)
     {
+        private const string CubicFileTimestampFormat = "yyyy_MM_dd_HHmm";
+
         private readonly IOptions<DecodeEventsConfiguration> _options = options;
 
         /// <inheritdoc/>
         public override async Task Process(IServiceScope scope, Stopwatch stopwatch, CancellationToken cancellationToken = default)
         {
             var repo = scope.ServiceProvider.GetService<IDeviceRepository>();
+            var devices = repo?.GetList().ToList() ?? new List<Device>();
 
             var workflow = new DecodeEventLogWorkflow(scope.ServiceProvider.GetService<IServiceScopeFactory>(), 50000, cancellationToken);
             await workflow.Initialize();
@@ -60,7 +65,7 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.HostedServices
                         })
                             .FirstOrDefault();
 
-                        var device = repo.GetList().FirstOrDefault(f => f.DeviceIdentifier == tag.Id);
+                        var device = devices.FirstOrDefault(f => f.DeviceIdentifier == tag.Id);
 
                         if (device != null)
                         {
@@ -72,7 +77,8 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.HostedServices
                     }
                 }
 
-                await QueueCubicFiles(workflow, repo.GetList().ToList());
+                var latestImportedCubicEvents = await GetLatestImportedCubicEvents(scope.ServiceProvider, devices, cancellationToken);
+                await QueueCubicFiles(workflow, devices, latestImportedCubicEvents);
             }
             else
             {
@@ -89,7 +95,30 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.HostedServices
             return device?.DeviceConfiguration?.Description?.StartsWith("Cubic", StringComparison.OrdinalIgnoreCase) == true;
         }
 
-        private static async Task QueueCubicFiles(DecodeEventLogWorkflow workflow, IReadOnlyCollection<Device> devices)
+        private static async Task<Dictionary<string, DateTime>> GetLatestImportedCubicEvents(IServiceProvider serviceProvider, IReadOnlyCollection<Device> devices, CancellationToken cancellationToken)
+        {
+            var locationIdentifiers = devices
+                .Where(IsCubicDevice)
+                .Select(d => d.Location?.LocationIdentifier)
+                .Where(d => !string.IsNullOrWhiteSpace(d))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (locationIdentifiers.Count == 0)
+            {
+                return new Dictionary<string, DateTime>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            var eventRepository = serviceProvider.GetService<IIndianaEventLogRepository>();
+            if (eventRepository == null)
+            {
+                return new Dictionary<string, DateTime>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            return await eventRepository.GetLatestHourByLocations(locationIdentifiers, cancellationToken);
+        }
+
+        private static async Task QueueCubicFiles(DecodeEventLogWorkflow workflow, IReadOnlyCollection<Device> devices, IReadOnlyDictionary<string, DateTime> latestImportedCubicEvents)
         {
             var cubicDevices = devices.Where(IsCubicDevice).ToList();
 
@@ -112,11 +141,49 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.HostedServices
                     continue;
                 }
 
-                foreach (var file in Directory.GetFiles(controllerFolder, "*", SearchOption.AllDirectories))
+                var hasLatestImportedEvent = latestImportedCubicEvents.TryGetValue(device.Location?.LocationIdentifier ?? string.Empty, out var latestImportedEvent);
+                DateTime? latestImportedEventTimestamp = hasLatestImportedEvent ? latestImportedEvent : null;
+
+                foreach (var file in Directory.GetFiles(controllerFolder, "*", SearchOption.AllDirectories)
+                    .OrderBy(f => Path.GetFileName(f), StringComparer.OrdinalIgnoreCase))
                 {
-                    await workflow.Input.SendAsync(Tuple.Create(device, new FileInfo(file)));
+                    var fileInfo = new FileInfo(file);
+                    if (ShouldSkipCubicFile(fileInfo, latestImportedEventTimestamp))
+                    {
+                        Console.WriteLine($"Skipping Cubic file {fileInfo.FullName} because it is older than the latest imported hour {latestImportedEventTimestamp:O}.");
+                        continue;
+                    }
+
+                    await workflow.Input.SendAsync(Tuple.Create(device, fileInfo));
                 }
             }
+        }
+
+        private static bool ShouldSkipCubicFile(FileInfo file, DateTime? latestImportedEventTimestamp)
+        {
+            if (!latestImportedEventTimestamp.HasValue || !file.Extension.Equals(".csv", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return TryGetCubicFileTimestamp(file.Name, out var fileTimestamp) &&
+                fileTimestamp < latestImportedEventTimestamp.Value.AddHours(-1);
+        }
+
+        private static bool TryGetCubicFileTimestamp(string fileName, out DateTime timestamp)
+        {
+            var name = Path.GetFileNameWithoutExtension(fileName);
+            var parts = name.Split('_', StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length == 6 &&
+                parts[0].Equals("TRAF", StringComparison.OrdinalIgnoreCase) &&
+                DateTime.TryParseExact($"{parts[2]}_{parts[3]}_{parts[4]}_{parts[5]}", CubicFileTimestampFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out timestamp))
+            {
+                return true;
+            }
+
+            timestamp = default;
+            return false;
         }
     }
 }
