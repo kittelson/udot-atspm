@@ -70,6 +70,8 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.HostedServices
                         }
                     }
                 }
+
+                await QueueCubicFiles(workflow, repo.GetList().ToList());
             }
             else
             {
@@ -79,6 +81,38 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.HostedServices
             workflow.Input.Complete();
 
             await Task.WhenAll(workflow.Steps.Select(s => s.Completion));
+        }
+
+        private static bool IsCubicDevice(Device device)
+        {
+            return device?.DeviceConfiguration?.Description?.Equals("Cubic", StringComparison.OrdinalIgnoreCase) == true;
+        }
+
+        private static async Task QueueCubicFiles(DecodeEventLogWorkflow workflow, IReadOnlyCollection<Device> devices)
+        {
+            var rootPath = devices.Where(IsCubicDevice).Select(d => d.DeviceConfiguration?.Path).FirstOrDefault(p => !string.IsNullOrWhiteSpace(p));
+            if (!Directory.Exists(rootPath))
+            {
+                Console.WriteLine($"Skipping Cubic log import because UNC root path {rootPath} was not accessible.");
+                return;
+            }
+
+            foreach (var device in devices.Where(IsCubicDevice))
+            {
+                var cubicId = device.DeviceProperties?.FirstOrDefault(p => p.Key.Equals("ATMSNOWID", StringComparison.OrdinalIgnoreCase)).Value?.ToString();
+
+                var controllerFolder = Path.Combine(rootPath, $"Ctrl{cubicId}");
+                if (!Directory.Exists(controllerFolder))
+                {
+                    Console.WriteLine($"Skipping Cubic device {device.DeviceIdentifier} because controller folder {controllerFolder} was not accessible.");
+                    continue;
+                }
+
+                foreach (var file in Directory.GetFiles(controllerFolder, "*", SearchOption.AllDirectories))
+                {
+                    await workflow.Input.SendAsync(Tuple.Create(device, new FileInfo(file)));
+                }
+            }
         }
     }
 }
