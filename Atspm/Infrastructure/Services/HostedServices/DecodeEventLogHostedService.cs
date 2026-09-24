@@ -86,7 +86,7 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.HostedServices
 
         private static bool IsCubicDevice(Device device)
         {
-            return device?.DeviceConfiguration?.Product?.Manufacturer?.Equals("Cubic", StringComparison.OrdinalIgnoreCase) == true;
+            return device?.DeviceConfiguration?.Description?.StartsWith("Cubic", StringComparison.OrdinalIgnoreCase) == true;
         }
 
         private static async Task QueueCubicFiles(DecodeEventLogWorkflow workflow, IReadOnlyCollection<Device> devices)

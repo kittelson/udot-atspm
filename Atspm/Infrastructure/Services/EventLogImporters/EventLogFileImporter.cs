@@ -74,9 +74,9 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.EventLogImporters
 
             var device = parameter.Item1;
             var file = parameter.Item2;
-            var decoders = parameter.Item1.DeviceConfiguration.Decoders?.ToList() ?? [];
+            var decoders = parameter.Item1.DeviceConfiguration.Decoders?.ToList() ?? new List<string>();
 
-            if (parameter.Item1.DeviceConfiguration?.Product?.Manufacturer?.Equals("Cubic", StringComparison.OrdinalIgnoreCase) == true &&
+            if (parameter.Item1.DeviceConfiguration?.Description?.StartsWith("Cubic", StringComparison.OrdinalIgnoreCase) == true &&
                 !decoders.Contains("CubicToIndianaDecoder", StringComparer.OrdinalIgnoreCase))
             {
                 decoders.Add("CubicToIndianaDecoder");
