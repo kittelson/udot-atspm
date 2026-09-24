@@ -74,7 +74,13 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.EventLogImporters
 
             var device = parameter.Item1;
             var file = parameter.Item2;
-            var decoders = parameter.Item1.DeviceConfiguration.Decoders.ToList();
+            var decoders = parameter.Item1.DeviceConfiguration.Decoders?.ToList() ?? [];
+
+            if (parameter.Item1.DeviceConfiguration?.Product?.Manufacturer?.Equals("Cubic", StringComparison.OrdinalIgnoreCase) == true &&
+                !decoders.Contains("CubicToIndianaDecoder", StringComparer.OrdinalIgnoreCase))
+            {
+                decoders.Add("CubicToIndianaDecoder");
+            }
 
             if (device == null)
                 throw new ArgumentNullException(nameof(device), $"can not be null");
@@ -84,9 +90,6 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.EventLogImporters
 
             if (!file.Exists)
                 throw new FileNotFoundException($"File not found {file.FullName}", file.FullName);
-
-            if (decoders == null)
-                throw new ArgumentNullException(nameof(decoders), $"can not be null");
 
             if (CanExecute(parameter))
             {

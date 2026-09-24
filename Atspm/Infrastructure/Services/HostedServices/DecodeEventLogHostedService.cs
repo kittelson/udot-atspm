@@ -35,6 +35,7 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.HostedServices
             var repo = scope.ServiceProvider.GetService<IDeviceRepository>();
 
             var workflow = new DecodeEventLogWorkflow(scope.ServiceProvider.GetService<IServiceScopeFactory>(), 50000, cancellationToken);
+            await workflow.Initialize();
 
             Console.WriteLine($"path: {_options.Value.Path}");
 
@@ -85,19 +86,22 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.HostedServices
 
         private static bool IsCubicDevice(Device device)
         {
-            return device?.DeviceConfiguration?.Description?.Equals("Cubic", StringComparison.OrdinalIgnoreCase) == true;
+            return device?.DeviceConfiguration?.Product?.Manufacturer?.Equals("Cubic", StringComparison.OrdinalIgnoreCase) == true;
         }
 
         private static async Task QueueCubicFiles(DecodeEventLogWorkflow workflow, IReadOnlyCollection<Device> devices)
         {
-            var rootPath = devices.Where(IsCubicDevice).Select(d => d.DeviceConfiguration?.Path).FirstOrDefault(p => !string.IsNullOrWhiteSpace(p));
-            if (!Directory.Exists(rootPath))
+            var cubicDevices = devices.Where(IsCubicDevice).ToList();
+
+            var rootPath = cubicDevices.FirstOrDefault()?.DeviceConfiguration?.Path;
+
+            if (string.IsNullOrWhiteSpace(rootPath) || !Directory.Exists(rootPath))
             {
                 Console.WriteLine($"Skipping Cubic log import because UNC root path {rootPath} was not accessible.");
                 return;
             }
 
-            foreach (var device in devices.Where(IsCubicDevice))
+            foreach (var device in cubicDevices)
             {
                 var cubicId = device.DeviceProperties?.FirstOrDefault(p => p.Key.Equals("ATMSNOWID", StringComparison.OrdinalIgnoreCase)).Value?.ToString();
 
